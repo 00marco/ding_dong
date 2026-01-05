@@ -6,14 +6,14 @@ from datetime import datetime
 # PAGE CONFIG
 # ---------------------------
 st.set_page_config(
-    page_title="Hourly Reflection",
+    page_title="DING DONG",
     layout="centered",
 )
 
 # ---------------------------
 # COPY
 # ---------------------------
-st.title("Hourly Reflection")
+st.title("DING DONG")
 
 st.markdown(
     """
