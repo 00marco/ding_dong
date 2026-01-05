@@ -19,7 +19,7 @@ st.markdown(
     """
 This app shows a single shared reflection prompt.
 
-The prompt changes once per hour.
+The prompt changes slowly.
 Everyone sees the same one.
 There are no notifications, no feeds, and nothing to catch up on.
 
@@ -31,144 +31,75 @@ It’s meant to be visited briefly — and left.
 st.markdown("---")
 
 # ---------------------------
-# DATA
+# FIXED PROMPT SET (STARTER)
 # ---------------------------
-modalities = [
-    "Write about",
-    "Reflect on",
-    "Describe",
-    "Jot down thoughts on",
-    "Tell the story of",
-    "Capture a moment from",
-]
-
-topics = [
-    # Work / effort / cognitive load
-    "your work",
-    "a task you're working on",
-    "something unfinished",
-    "something you've been avoiding",
-    "something that took more energy than expected",
-    "something that felt easier than expected",
-    "a recurring responsibility",
-    "a small task",
-    "a big task",
-    "something you touched briefly",
-    "something that's been on your mind",
-    # Mental & emotional
-    "your mental state today",
-    "a thought that kept returning",
-    "something that felt heavy",
-    "something that felt light",
-    "a moment of mental clarity",
-    "a moment of mental friction",
-    "something that affected your mood",
-    "something you found yourself ruminating on",
-    "a moment you felt present",
-    "a moment you felt distracted",
-    # Body / physical
-    "your body today",
-    "how your body feels",
-    "your energy levels",
-    "a moment of physical ease",
-    "a moment of physical discomfort",
-    "something physical you did",
-    "your relationship with rest",
-    "your relationship with movement",
-    "something that made your body feel better",
-    "something that made your body feel worse",
-    "how well-rested you felt",
-    "a moment you noticed your breath",
-    # Social
-    "an interaction you had",
-    "a conversation that stayed with you",
-    "a moment of connection",
-    "a moment of distance",
-    "someone you thought about",
-    "how you felt around other people",
-    "a social moment that gave you energy",
-    "a social moment that drained you",
-    "a relationship dynamic you noticed",
-    "a small social interaction",
+PROMPTS = [
+    # Work
+    "Reflect on your work right now.",
+    "Reflect on something unfinished.",
+    "Reflect on where your effort has been going.",
+    "Reflect on something you’ve been avoiding.",
+    # Body
+    "Reflect on how your body feels today.",
+    "Reflect on your energy.",
+    "Reflect on your relationship with rest.",
+    "Reflect on a moment of physical ease or discomfort.",
+    # Mind
+    "Reflect on your mental state.",
+    "Reflect on a thought that kept returning.",
+    "Reflect on something that felt heavy or light.",
+    "Reflect on your attention today.",
+    # Social life
+    "Reflect on an interaction that stayed with you.",
+    "Reflect on how you felt around other people.",
+    "Reflect on a moment of connection or distance.",
+    # Money
+    "Reflect on how money showed up today.",
+    "Reflect on a choice shaped by money.",
+    "Reflect on your sense of financial ease or tension.",
     # Environment
-    "your home environment",
-    "a space you spend a lot of time in",
-    "a space that felt calm",
-    "a space that felt cluttered",
-    "a small area of your home",
-    "something you moved or rearranged",
-    "something you put away",
-    "something that’s been out of place",
-    "a surface you see often",
-    "something in your environment that affected your mood",
-    # Finances
-    "something related to money that came up",
-    "a financial decision you thought about",
-    "a purchase you noticed yourself making",
-    "a moment you felt financially at ease",
-    "a moment you felt financially tense",
-    "something you delayed because of money",
-    "something money made easier",
-    "something money complicated",
-    "your relationship with spending today",
-    "your relationship with financial security",
-    # Time / pacing
-    "how your time felt today",
-    "a moment that felt rushed",
-    "a moment that felt spacious",
-    "something that took longer than expected",
-    "something that ended sooner than expected",
-    "how you transitioned between things",
-    "a boundary you held",
-    "a boundary you wished you’d held",
-    "something that pulled at your attention",
-    "something that gave you a sense of pace",
+    "Reflect on the space around you.",
+    "Reflect on something in your environment that affected you.",
+    # Time & pacing
+    "Reflect on how your time felt today.",
+    "Reflect on your sense of pace.",
+    "Reflect on a boundary you noticed.",
+    # Social impact
+    "Reflect on how your actions affected others.",
+    "Reflect on how you showed up in shared space.",
+    "Reflect on something you contributed or withheld.",
     # Integration
-    "how different parts of your day connected",
-    "something that surprised you",
-    "a moment that felt out of sync",
-    "a moment that felt aligned",
-    "something that set the tone for your day",
-    "something that shifted your energy",
-]
-
-timeframes = [
-    "today",
-    "earlier today",
-    "recently",
-    "over the past few hours",
-    "as it is right now",
+    "Reflect on how the day fit together.",
+    "Reflect on what set the tone.",
+    "Reflect on what shifted your energy.",
 ]
 
 
 # ---------------------------
-# HOURLY PROMPT LOGIC
+# PROMPT ROTATION LOGIC
 # ---------------------------
-def get_hourly_prompt():
-    # Use UTC so everyone shares the same cadence
+def get_current_prompt():
+    """
+    Change cadence by modifying the key:
+    - hourly: "%Y-%m-%d-%H"
+    - daily:  "%Y-%m-%d"
+    """
     now = datetime.utcnow()
-    hour_key = now.strftime("%Y-%m-%d-%H")
+    time_key = now.strftime("%Y-%m-%d")  # DAILY cadence
 
-    # Deterministic hash so the same hour always yields the same prompt
-    seed = int(hashlib.sha256(hour_key.encode()).hexdigest(), 16)
+    seed = int(hashlib.sha256(time_key.encode()).hexdigest(), 16)
+    index = seed % len(PROMPTS)
 
-    modality = modalities[seed % len(modalities)]
-    topic = topics[(seed // 7) % len(topics)]
-    timeframe = timeframes[(seed // 13) % len(timeframes)]
-
-    return f"{modality} {topic} {timeframe}."
+    return PROMPTS[index]
 
 
-prompt = get_hourly_prompt()
+prompt = get_current_prompt()
 
 # ---------------------------
 # DISPLAY PROMPT
 # ---------------------------
-st.markdown(f"### 🍃 Prompt: {prompt}")
+st.markdown(f"### 🍃 {prompt}")
 
 st.markdown("---")
 
-st.caption(
-    "The prompt will change on the next hour. "
-    "You don’t need to be here when it does."
-)
+st.caption("You don’t need to respond. " "You don’t need to return. " "This is enough.")
